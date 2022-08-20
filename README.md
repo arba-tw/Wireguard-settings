@@ -7,8 +7,8 @@ Server 伺服器端 ，設備直接有Public address
 vi /etc/sysctl.conf
 net.ipv4.ip_forward=1
 
-Device_A:Home_Nas
-    eth0:192.168.0.11/24
+Device_A:Home_Nas <br>
+&nbsp;&nbsp;   eth0:192.168.0.11/24
     route:0.0.0.0/0 -> 192.168.0.1
     route:172.16.0.0/12 -> 192.168.0.101
     

@@ -1,47 +1,73 @@
 # Wireguard-settings (Wireguard的設定)
 
-Device_A:Home_Nas <br>&nbsp;&nbsp;
-    介面設定： <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    - eth0:192.168.0.11/24 <br>&nbsp;&nbsp;
-    路由設定： <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    - route:0.0.0.0/0 -> 192.168.0.1 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    - route:172.16.0.0/12 -> 192.168.0.101
+## 架構
 
-Device_B:Wireguard_router <br>&nbsp;&nbsp;
-    介面設定：  <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    - eth0:192.168.0.101/24 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    - wg1:172.16.0.101/32  <br>&nbsp;&nbsp;
-    路由設定： <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    - route:0.0.0.0/0 -> 192.168.0.1 <br>&nbsp;&nbsp;
-    封包轉送設定：
-<pre><code>vi /etc/sysctl.conf
-  net.ipv4.ip_forward=1 </code></pre>
-&nbsp;&nbsp;Wireguard的Key產生：
-<pre><code>wg genkey | tee /etc/wireguard/keys/Client_Private_key | wg pubkey > /etc/wireguard/keys/Client_Public_key </code></pre>
+NAS <--> Wireguard_router < == > Home_AP < == > Internet < == > VPS 
 
-<pre><code>cat /etc/wireguard/keys/Client_Private_key
-  54321xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+##    設備
+* **Device_A:Home_Nas**
+    * 介面設定：
+        * eth0:192.168.0.11/24
+    * 路由設定：
+        * route:0.0.0.0/0 -> 192.168.0.1
+        * route:172.16.0.0/12 -> 192.168.0.101
 
-cat /etc/wireguard/keys/Client_Public_key
-  54321ooooooooooooooooooooooooooooooooooooooooooooooooooo </code></pre>
+* **Device_B:Wireguard_router**
+    * 介面設定：
+        * eth0:192.168.0.101/24
+        * wg1:172.16.0.101/32
+    * 路由設定：
+        * route:0.0.0.0/0 -> 192.168.0.1
+    * 封包轉送設定：
 
-Device_C:Home_AP <br>&nbsp;&nbsp;
-    eth0:ISP_address <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    route:0.0.0.0/0 -> ISP_gateway <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    eth1:192.168.0.1/24
+        `user@WG_R1:~$ sudo vi /etc/sysctl.conf`
+        
+        `net.ipv4.ip_forward=1`
 
-Service_A:VPS <br>&nbsp;&nbsp;
-    eth0:VPS_Network_address <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    wg0:172.16.0.1/24 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    route:0.0.0.0/0 -> VPS_Network_gateway <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    route:172.16.0.0/24 via 172.16.0.1 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    route:192.168.0.0/24 -> 172.16.0.1
+    * Wireguard的Key產生：
 
-<pre><code>vi /etc/sysctl.conf
-  net.ipv4.ip_forward=1 </code></pre>
-<pre><code>wg genkey | tee /etc/wireguard/keys/Client_Private_key | wg pubkey > /etc/wireguard/keys/Client_Public_key </code></pre>
+        <pre><code>user@WG_R1:~$ wg genkey | tee /etc/wireguard/keys/Client_Private_key | wg pubkey > /etc/wireguard/keys/Client_Public_key</code></pre>
 
-<pre><code>cat /etc/wireguard/keys/Client_Private_key
-  12345xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-cat /etc/wireguard/keys/Client_Public_key
-  12345ooooooooooooooooooooooooooooooooooooooooooooooooooo </code></pre>
+        <pre><code>user@WG_R1:~$ cat /etc/wireguard/keys/Client_Private_key
+      54321xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+
+        <pre><code>user@WG_R1:~$ cat /etc/wireguard/keys/Client_Public_key
+      54321ooooooooooooooooooooooooooooooooooooooooooooooooooo</code></pre>
+
+
+
+
+
+
+
+
+* **Device_C:Home_AP**
+    * 介面設定：
+        * eth0:ISP_address
+        * eth1:192.168.0.1/24
+    * 路由設定：
+        * route:0.0.0.0/0 -> ISP_gateway
+* **Service_A:VPS**
+    * 介面設定：
+        * eth0:VPS_Network_address
+        * wg0:172.16.0.1/24
+    * 路由設定：
+        * route:0.0.0.0/0 -> VPS_Network_gateway
+        * route:172.16.0.0/24 via 172.16.0.1
+        * route:192.168.0.0/24 -> 172.16.0.1
+   * 封包轉送設定：
+
+        `user@WG_R0:~$ sudo vi /etc/sysctl.conf`
+        
+        `net.ipv4.ip_forward=1`
+
+   * Wireguard的Key產生：
+
+        <pre><code>user@WG_R0:~$ wg genkey | tee /etc/wireguard/keys/Server_Private_key | wg pubkey > /etc/wireguard/keys/Server_Public_key</code></pre>
+
+        <pre><code>user@WG_R0:~$ cat /etc/wireguard/keys/Server_Private_key
+      54321xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+
+        <pre><code>user@WG_R1:~$ cat /etc/wireguard/keys/Server_Public_key
+      54321ooooooooooooooooooooooooooooooooooooooooooooooooooo</code></pre>
+

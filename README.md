@@ -8,23 +8,29 @@ Device_A:Home_Nas <br>&nbsp;&nbsp;
 Device_B:Wireguard_router <br>&nbsp;&nbsp;
     eth0:192.168.0.101/24 <br>&nbsp;&nbsp;
     wg1:172.16.0.101/32 <br>&nbsp;&nbsp;
-    route:0.0.0.0/0 -> 192.168.0.1 <br>&nbsp;&nbsp;
-    ```
+    route:0.0.0.0/0 -> 192.168.0.1
+<pre><code>
     vi /etc/sysctl.conf
-    ```
-    <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    ```
-      net.ipv4.ip_forward=1
-    ``` 
-    <br>&nbsp;&nbsp;&nbsp;
-    ```
-    wg genkey | tee /etc/wireguard/keys/Client_Private_key | wg pubkey > /etc/wireguard/keys/Client_Public_key
-    ```
+      net.ipv4.ip_forward=1 </code></pre>
+<pre><code>
+    wg genkey | tee /etc/wireguard/keys/Client_Private_key | wg pubkey > /etc/wireguard/keys/Client_Public_key </code></pre>
     <br>&nbsp;&nbsp;
-    cat /etc/wireguard/keys/Client_Private_key <br>&nbsp;&nbsp;&nbsp;
-      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx <br>&nbsp;&nbsp;
-    cat /etc/wireguard/keys/Client_Public_key <br>&nbsp;&nbsp;&nbsp;
-      oooooooooooooooooooooooooooooooooooooooooooooooooooooooo <br>&nbsp;&nbsp;
+    ``
+    cat /etc/wireguard/keys/Client_Private_key
+    ``
+     <br>&nbsp;&nbsp;&nbsp;
+    ``
+      54321xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+``
+      <br>&nbsp;&nbsp;
+``
+    cat /etc/wireguard/keys/Client_Public_key
+``
+     <br>&nbsp;&nbsp;&nbsp;
+``
+      54321ooooooooooooooooooooooooooooooooooooooooooooooooooo
+``
+      <br>&nbsp;&nbsp;
 
 
 Device_C:Home_AP <br>&nbsp;&nbsp;
@@ -38,5 +44,31 @@ Service_A:VPS <br>&nbsp;&nbsp;
     route:0.0.0.0/0 -> VPS_Network_gateway <br>&nbsp;&nbsp;
     route:172.16.0.0/24 via 172.16.0.1 <br>&nbsp;&nbsp;
     route:192.168.0.0/24 -> 172.16.0.1 <br>&nbsp;&nbsp;
-    vi /etc/sysctl.conf <br>&nbsp;&nbsp;&nbsp;
-      net.ipv4.ip_forward=1 <br>
+    ``
+    vi /etc/sysctl.conf
+    ``
+    <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    ``
+      net.ipv4.ip_forward=1
+    ``
+    <br>&nbsp;&nbsp;&nbsp;
+    ``
+    wg genkey | tee /etc/wireguard/keys/Client_Private_key | wg pubkey > /etc/wireguard/keys/Client_Public_key
+    ``
+    <br>&nbsp;&nbsp;
+    ``
+    cat /etc/wireguard/keys/Client_Private_key
+    ``
+     <br>&nbsp;&nbsp;&nbsp;
+    ``
+      12345xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+``
+      <br>&nbsp;&nbsp;
+``
+    cat /etc/wireguard/keys/Client_Public_key
+``
+     <br>&nbsp;&nbsp;&nbsp;
+``
+      12345ooooooooooooooooooooooooooooooooooooooooooooooooooo
+``
+      <br>&nbsp;&nbsp;

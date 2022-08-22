@@ -29,16 +29,49 @@ NAS <--> Wireguard_router < == > Home_AP < == > Internet < == > VPS
         <pre><code>user@WG_R1:~$ wg genkey | tee /etc/wireguard/keys/Client_Private_key | wg pubkey > /etc/wireguard/keys/Client_Public_key</code></pre>
 
         <pre><code>user@WG_R1:~$ cat /etc/wireguard/keys/Client_Private_key
-      54321xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+      12345xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
 
         <pre><code>user@WG_R1:~$ cat /etc/wireguard/keys/Client_Public_key
-      54321ooooooooooooooooooooooooooooooooooooooooooooooooooo</code></pre>
+      12345ooooooooooooooooooooooooooooooooooooooooooooooooooo</code></pre>
+
+    * 設定Wireguard：
+    
+        `user@WG_R1:~$ sudo vi /etc/wireguard/wg1.conf`
+
+        ```c++
+        #=============================================
+        # Client's wg interface for
+        #---------------------------------------------
+        [Interface]
+        Address = 172.16.0.101/32
+        MTU = 1384
+        ListenPort = 55555
+        PrivateKey = 12345xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        Table = auto
+
+        #=============================================
+        # Our Wireguard Server
+        #---------------------------------------------
+        [Peer]
+        PublicKey = 54321ooooooooooooooooooooooooooooooooooooooooooooooooooo
+        AllowedIPs = 0.0.0.0/0
+        Endpoint = "VPSNetworkaddress":55555
+        PersistentKeepalive = 25
+        ```
 
 
 
+    * 啟動：
 
+        `user@WG_R1:~$ sudo systemctl start `
 
+    * 檢查狀態：
 
+        `user@WG_R1:~$ sudo systemctl status `
+
+    * 開機啟動：
+
+        `user@WG_R1:~$ sudo systemctl enable `
 
 
 * **Device_C:Home_AP**
@@ -71,3 +104,37 @@ NAS <--> Wireguard_router < == > Home_AP < == > Internet < == > VPS
         <pre><code>user@WG_R1:~$ cat /etc/wireguard/keys/Server_Public_key
       54321ooooooooooooooooooooooooooooooooooooooooooooooooooo</code></pre>
 
+
+    * 設定Wireguard
+    
+    
+        `user@WG_R1:~$ sudo vi /etc/wireguard/wg1.conf`
+
+        ```c++
+        #=============================================
+        # Client's wg interface for
+        #---------------------------------------------
+        [Interface]
+        Address = 172.16.0.101/32
+        MTU = 1384
+        ListenPort = 55555
+        PrivateKey = 12345xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        Table = auto
+
+        #=============================================
+        # Our Wireguard Server
+        #---------------------------------------------
+        [Peer]
+        PublicKey = 54321ooooooooooooooooooooooooooooooooooooooooooooooooooo
+        AllowedIPs = 0.0.0.0/0
+        Endpoint = "VPSNetworkaddress":55555
+        PersistentKeepalive = 25
+        ```
+
+
+    * 設定iptables
+
+        `user@WG`
+        
+## 參考(Reference)
+    

@@ -4,7 +4,7 @@
 
 NAS <--> Wireguard_router < == > Home_AP < == > Internet < == > VPS 
 
-##    設備
+##    設備與設定
 * **Device_A:Home_Nas**
     * 介面設定：
         * eth0:192.168.0.11/24
@@ -82,14 +82,27 @@ NAS <--> Wireguard_router < == > Home_AP < == > Internet < == > VPS
         * eth1:192.168.0.1/24
     * 路由設定：
         * route:0.0.0.0/0 -> 1.2.3.1
+
 * **Service_A:VPS**
     * 介面設定：
-        * eth0:2.3.4.5/24
-        * wg0:172.16.0.1/24
+        * `user@WG_R0:~$ ip addr show`
+            * eth0:2.3.4.5/24
+            * wg0:172.16.0.1/24
     * 路由設定：
-        * route:0.0.0.0/0 -> 2.3.4.1
-        * route:172.16.0.0/24 via 172.16.0.1
-        * route:192.168.0.0/24 -> 172.16.0.1
+        * `user@WG_R1:~$ ip route show`
+            * route:0.0.0.0/0 -> 2.3.4.1
+            * route:172.16.0.0/24 via 172.16.0.1
+            * route:192.168.0.0/24 -> 172.16.0.101
+        
+        * `user@WG_R0:~$ sudo vi /etc/netplan/123_xxxxx.yaml`
+             ```
+             wg0:
+                addresses: [172.16.0.1/24]
+                routes:
+                  - to: 192.168.0.0/24
+                     via: 172.16.0.101
+             ```
+
    * 封包轉送設定：
 
         `user@WG_R0:~$ sudo vi /etc/sysctl.conf`
@@ -138,27 +151,11 @@ NAS <--> Wireguard_router < == > Home_AP < == > Internet < == > VPS
 
         * `user@WG_R0:~$ sudo vi /etc/wireguard/iptables/add-nat-routing.sh`
 
-        ```bash
-        #!/bin/bash
-
-        IPT="/sbin/iptables"
-        IN_FACE="eth0"
-        WG_FACE="wg0"
-        SUB_NET="172.16.0.0/24"
-        WG_PORT="55555"
-
-        $IPT -t nat -I POSTROUTING 1 -s $SUB_NET -o $IN_FACE -j MASQUERADE
-        $IPT -I INPUT 1 -i $WG_FACE -j ACCEPT
-        $IPT -I FORWARD 1 -i $IN_FACE -o $WG_FACE -j ACCEPT
-        $IPT -I FORWARD 1 -i $WG_FACE -o $IN_FACE -j ACCEPT
-        $IPT -I INPUT 1 -i $IN_FACE -p udp --dport $WG_PORT -j ACCEPT
-        ```
-        * `user@WG_R0:~$ sudo vi /etc/wireguard/iptables/add-nat-routing.sh`
-
             ```bash
             #!/bin/bash
 
             IPT="/sbin/iptables"
+            
             IN_FACE="eth0"
             WG_FACE="wg0"
             SUB_NET="172.16.0.0/24"
@@ -169,6 +166,24 @@ NAS <--> Wireguard_router < == > Home_AP < == > Internet < == > VPS
             $IPT -I FORWARD 1 -i $IN_FACE -o $WG_FACE -j ACCEPT
             $IPT -I FORWARD 1 -i $WG_FACE -o $IN_FACE -j ACCEPT
             $IPT -I INPUT 1 -i $IN_FACE -p udp --dport $WG_PORT -j ACCEPT
+            ```
+        * `user@WG_R0:~$ sudo vi /etc/wireguard/iptables/remove-nat-routing.sh`
+
+            ```bash
+            #!/bin/bash
+
+            IPT="/sbin/iptables"
+            
+            IN_FACE="eth0"
+            WG_FACE="wg0"
+            SUB_NET="172.16.0.0/24"
+            WG_PORT="55555"
+
+            $IPT -t nat -D POSTROUTING -s $SUB_NET -o $IN_FACE -j MASQUERADE
+            $IPT -D INPUT -i $WG_FACE -j ACCEPT
+            $IPT -D FORWARD -i $IN_FACE -o $WG_FACE -j ACCEPT
+            $IPT -D FORWARD -i $WG_FACE -o $IN_FACE -j ACCEPT
+            $IPT -D INPUT -i $IN_FACE -p udp --dport $WG_PORT -j ACCEPT
             ```
 
     * 啟動：
@@ -186,4 +201,5 @@ NAS <--> Wireguard_router < == > Home_AP < == > Internet < == > VPS
 ## 參考(Reference)
 
 * https://www.wireguard.com/quickstart/
-* 
+* https://www.cyberciti.biz/faq/how-to-set-up-wireguard-firewall-rules-in-linux/
+* https://linuxconfig.org/how-to-add-static-route-with-netplan-on-ubuntu-20-04-focal-fossa-linux
